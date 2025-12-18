@@ -1,0 +1,23 @@
+{
+  "name": "moxon-cli",
+  "version": "1.1.0",
+  "description": "based on https://makerworld.com/ru/models/1925186-moxon-antenna-868-mhz-wall-desk-mount#profileId-2066038",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Moxon",
+    "Antenna",
+    "version 1.1",
+    "868",
+    "whynotlayers",
+    "Meshtastic",
+    "LoRa"
+  ],
+  "author": "MaksimKlyu",
+  "license": "ISC",
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}
