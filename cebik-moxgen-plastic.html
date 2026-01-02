@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head><title>Cebik MoxGen - Plastic Thickness</title><style>body{font-family:Arial;}</style></head>
+<body>
+<h1>Cebik W4RNL MoxGen (Plastic Thickness)</h1>
+<label>Target Freq (MHz): <input id="freq" value="868"></label><br>
+<label>Wire Diameter (mm): <input id="wireDia" value="1.5"></label><br>
+<label>Plastic ε_r: 
+<select id="plastic">
+<option value="1">None</option><option value="2.3">PP/PE</option><option value="2.8" selected>ABS</option><option value="3.5">PETG</option>
+</select>
+</label>
+<label>Plastic Thickness (mm): <input id="plasticThick" value="3" min="0" step="0.5"></label><br>
+<button onclick="calculate()">Calculate</button>
+<div id="result"></div>
+
+<script>
+function calculate(){
+  const f_target = +document.getElementById('freq').value;
+  const dia_mm = +document.getElementById('wireDia').value;
+  const dia = dia_mm / 300 / f_target;
+
+  const d1 = 0.4342945 * Math.log10(dia);
+  const A = -0.0008571428571*d1*d1 -0.009571428571*d1 + 0.3398571429;
+  const B = -0.002142857143*d1*d1 -0.02035714286*d1 + 0.008285714286;
+  const C = 0.001809523381*d1*d1 + 0.01780952381*d1 + 0.05164285714;
+  const D = 0.001*d1 + 0.07178571429;
+  const E = B + C + D;
+
+  // Thickness -> fill factor (distance to elements ~5mm from your model)
+  const eps_r = +document.getElementById('plastic').value;
+  const thick = +document.getElementById('plasticThick').value;
+  const dist = 5; // mm, center to wall
+  const frac = thick / (thick + dist);
+  const eps_reff = 1 + frac * (eps_r - 1);
+  const f_corr = f_target * Math.sqrt(eps_reff);
+  const scale = 300 / f_corr * 1000;
+
+  const dims = {
+    A: (A*scale).toFixed(2), B: (B*scale).toFixed(2),
+    C: (C*scale).toFixed(2), D: (D*scale).toFixed(2),
+    E: (E*scale).toFixed(2)
+  };
+  const total = (+dims.A + +dims.E).toFixed(1);
+
+  document.getElementById('result').innerHTML = `
+    <h3>Total: ${total} mm (design for ${f_corr.toFixed(1)} MHz)</h3>
+    <p><b>A:</b> ${dims.A} <b>B:</b> ${dims.B} <b>C:</b> ${dims.C} <b>D:</b> ${dims.D} <b>E:</b> ${dims.E}</p>
+    <p>frac=${frac.toFixed(2)} | ε_reff=${eps_reff.toFixed(2)} | Shift ~${((1-1/Math.sqrt(eps_reff))*100).toFixed(1)}%</p>
+  `;
+}
+</script>
+</body>
+</html>
